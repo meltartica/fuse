@@ -53,10 +53,10 @@ def fix_ocr_confusions(text: str) -> str:
 def try_ocr(img: Image.Image) -> tuple[str, float]:
     """Try multiple preprocessing pipelines, return best result."""
     pipelines = [
-        {"threshold": 140, "contrast_cutoff": 2, "sharp": False},
-        {"threshold": 120, "contrast_cutoff": 3, "sharp": False},
-        {"threshold": 160, "contrast_cutoff": 1, "sharp": False},
-        {"threshold": 100, "contrast_cutoff": 5, "sharp": False},
+        {"threshold": 140, "contrast_cutoff": 2},
+        {"threshold": 120, "contrast_cutoff": 3},
+        {"threshold": 160, "contrast_cutoff": 1},
+        {"threshold": 100, "contrast_cutoff": 5},
     ]
 
     best_text, best_conf = "", 0.0
