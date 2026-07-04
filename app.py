@@ -18,15 +18,6 @@ def preprocess(img: Image.Image, threshold: int = 140, contrast_cutoff: int = 2)
     return img
 
 
-def preprocess_sharp(img: Image.Image, threshold: int = 140, contrast_cutoff: int = 2) -> Image.Image:
-    img = img.convert("L")
-    img = ImageOps.autocontrast(img, cutoff=contrast_cutoff)
-    img = img.filter(ImageFilter.SHARPEN)
-    img = img.point(lambda x: 0 if x < threshold else 255, "1")
-    img = img.filter(ImageFilter.MedianFilter(3))
-    return img
-
-
 def upscale(img: Image.Image, factor: int = 3) -> Image.Image:
     w, h = img.size
     return img.resize((w * factor, h * factor), Image.LANCZOS)
@@ -51,31 +42,10 @@ def fix_ocr_confusions(text: str) -> str:
     has_digit = any(c.isdigit() for c in text)
     has_letter = any(c.isalpha() for c in text)
 
-    if has_digit and has_letter:
-        replacements = {
-            "O": "0", "o": "0", "D": "0", "Q": "0",
-            "I": "1", "l": "1", "i": "1",
-            "Z": "2", "z": "2",
-            "S": "5", "s": "5",
-            "B": "8", "b": "8",
-            "T": "7", "t": "7",
-            "G": "6", "g": "6",
-            "q": "9",
-        }
-        result = []
-        for c in text:
-            result.append(replacements.get(c, c))
-        return "".join(result)
-
+    # Only fix when confident — all letters with no vowels likely means digits
     if has_letter and not has_digit:
-        replacements = {
-            "0": "O", "1": "I", "2": "Z", "5": "S", "8": "B",
-            "7": "T", "6": "G", "9": "q", "3": "B",
-        }
-        result = []
-        for c in text:
-            result.append(replacements.get(c, c))
-        return "".join(result)
+        replacements = {"0": "O", "1": "I", "2": "Z", "5": "S", "8": "B"}
+        return "".join(replacements.get(c, c) for c in text)
 
     return text
 
@@ -87,17 +57,12 @@ def try_ocr(img: Image.Image) -> tuple[str, float]:
         {"threshold": 120, "contrast_cutoff": 3, "sharp": False},
         {"threshold": 160, "contrast_cutoff": 1, "sharp": False},
         {"threshold": 100, "contrast_cutoff": 5, "sharp": False},
-        {"threshold": 140, "contrast_cutoff": 2, "sharp": True},
-        {"threshold": 120, "contrast_cutoff": 3, "sharp": True},
-        {"threshold": 160, "contrast_cutoff": 1, "sharp": True},
     ]
 
     best_text, best_conf = "", 0.0
 
     for params in pipelines:
-        sharp = params.pop("sharp")
-        fn = preprocess_sharp if sharp else preprocess
-        processed = fn(img, **params)
+        processed = preprocess(img, **params)
         for scaled in [processed, upscale(processed)]:
             text, conf = ocr_with_confidence(scaled)
             text = text.replace(" ", "").upper()
