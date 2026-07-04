@@ -1,0 +1,8 @@
+node_modules
+.git
+.vscode
+__pycache__
+*.pyc
+wrangler.jsonc
+tsconfig.json
+src/

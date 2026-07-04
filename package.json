@@ -1,13 +1,10 @@
 {
-  "name": "dry-wind-d0ac",
-  "version": "0.0.0",
+  "name": "fuse-ocr",
+  "version": "1.0.0",
   "private": true,
   "scripts": {
-    "deploy": "uv run pywrangler deploy",
-    "dev": "uv run pywrangler dev",
-    "start": "uv run pywrangler dev"
-  },
-  "devDependencies": {
-    "wrangler": "^4.107.0"
+    "dev": "docker compose up --build",
+    "build": "docker compose build",
+    "start": "docker compose up -d"
   }
 }
