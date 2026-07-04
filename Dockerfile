@@ -1,7 +1,7 @@
 FROM python:3.12-slim
 
 RUN apt-get update && \
-    apt-get install -y --no-install-recommends tesseract-ocr libjpeg62-turbo-dev libpng-dev && \
+    apt-get install -y --no-install-recommends libjpeg62-turbo-dev libpng-dev && \
     rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
